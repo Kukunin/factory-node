@@ -1,4 +1,3 @@
-export { Uuid } from './helpers/uuid';
-import uuid from './helpers/uuid';
+import Factory from './factory';
 
-export default uuid;
+export default Factory
