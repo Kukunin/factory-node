@@ -1,45 +1,34 @@
-interface FactoryDSL {
-  attribute: (name: string, value: () => any) => void;
-}
-
-interface DefinitionDSL {
-  factory: (name: string, factory: (dsl: FactoryDSL) => void) => void;
-}
-
-interface Factory {
-  build: (name: string) => any;
-}
-
-interface FactoryDefinition {
-  attributes: { [name: string]: () => any };
-}
-
-export const define = (definition: (dsl: DefinitionDSL) => void): Factory => {
-  const factories: { [name: string]: FactoryDefinition } = {};
-
-  definition({
-    factory: (name, factoryFn) => {
-      const factory: FactoryDefinition = {
-        attributes: {},
-      }
-
-      factoryFn({
-        attribute: (name, valueFn) => {
-          factory.attributes[name] = valueFn;
-        }
-      })
-
-      factories[name] = factory
-    }
-  });
-
-  return {
-    build: (name) => {
-      const factory = factories[name];
-      return Object.entries(factory.attributes).reduce((attributes, [key, value]) => ({
-        ...attributes,
-        [key]: value(),
-      }), {})
-    },
-  };
+type PropsDefinition = {
+  [key: string]: () => any;
 };
+
+type ResolvedProps<T extends PropsDefinition> = {
+  [K in keyof T]: ReturnType<T[K]>;
+};
+
+class Factory<TProps extends PropsDefinition> {
+  declare readonly __props: TProps;
+
+  constructor(props: TProps) {
+    this.__props = props;
+  }
+
+  attribute<TName extends string, TReturn extends any>(name: TName, value: () => TReturn) {
+    return new Factory({
+      ...this.__props,
+      ...({ [name]: value } as { [K in TName]: () => TReturn }),
+    });
+  }
+
+  build(overrides: Partial<ResolvedProps<TProps>> = {}): ResolvedProps<TProps> {
+    return Object.entries(this.__props).reduce(
+      (attributes, [key, value]) => ({
+        ...attributes,
+        [key]: key in overrides ? overrides[key] : value(),
+      }),
+      {},
+    ) as ResolvedProps<TProps>;
+  }
+}
+
+export const define = () => new Factory({});

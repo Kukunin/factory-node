@@ -1,13 +1,29 @@
-import { define } from '../factory'
+import { define } from '../factory';
 
 describe('Factory', () => {
-  it('defines simple factories', () => {
-    const factory = define((a) => {
-      a.factory('user', (f) => {
-        f.attribute('name', () => 'John')
-      })
-    })
+  const factory = define()
+    .attribute('name', () => 'abc')
+    .attribute('age', () => 18);
 
-    expect(factory.build('user')).toEqual({ name: 'John' })
+  it('defines simple factories', () => {
+    const user = factory.build();
+    expect(user).toEqual({ name: 'abc', age: 18 });
+  });
+
+  it('allows to override values', () => {
+    const user = factory.build({ name: 'another' });
+    expect(user.name).toEqual('another');
+    expect(user.age).toEqual(18);
+  });
+
+  it('does not evaluate default value if overwritten is provided', () => {
+    const mockName = jest.fn(() => 'default');
+    const mockAge = jest.fn(() => 18);
+    const factory = define().attribute('name', mockName).attribute('age', mockAge);
+
+    factory.build({ name: 'another' });
+
+    expect(mockName).not.toHaveBeenCalled();
+    expect(mockAge).toHaveBeenCalled();
   });
 });
