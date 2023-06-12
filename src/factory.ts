@@ -20,7 +20,11 @@ export class Factory<TProps extends PropsDefinition> {
     });
   }
 
-  build(overrides: Partial<ResolvedProps<TProps>> = {}): ResolvedProps<TProps> {
+  async build(overrides: Partial<ResolvedProps<TProps>> = {}): Promise<ResolvedProps<TProps>> {
+    return this.buildSync(overrides);
+  }
+
+  buildSync(overrides: Partial<ResolvedProps<TProps>> = {}): ResolvedProps<TProps> {
     return Object.entries(this.__props).reduce(
       (attributes, [key, value]) => ({
         ...attributes,

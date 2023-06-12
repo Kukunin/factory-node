@@ -25,8 +25,15 @@ class Holding<TFactories extends FactoriesDefinition> {
   build<TName extends keyof TFactories>(
     name: TName,
     overrides: Parameters<TFactories[TName]['build']>[0] = {},
+  ): Promise<ReturnType<TFactories[TName]['build']>> {
+    return this.__factories[name].build(overrides) as Promise<ReturnType<TFactories[TName]['build']>>;
+  }
+
+  buildSync<TName extends keyof TFactories>(
+    name: TName,
+    overrides: Parameters<TFactories[TName]['build']>[0] = {},
   ): ReturnType<TFactories[TName]['build']> {
-    return this.__factories[name].build(overrides) as ReturnType<TFactories[TName]['build']>;
+    return this.__factories[name].buildSync(overrides) as ReturnType<TFactories[TName]['build']>;
   }
 }
 
