@@ -6,7 +6,7 @@ type ResolvedProps<T extends PropsDefinition> = {
   [K in keyof T]: ReturnType<T[K]>;
 };
 
-class Factory<TProps extends PropsDefinition> {
+export class Factory<TProps extends PropsDefinition> {
   declare readonly __props: TProps;
 
   constructor(props: TProps) {
