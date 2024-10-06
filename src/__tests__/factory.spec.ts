@@ -54,5 +54,21 @@ describe('Factory', () => {
     it('supports multiple traits', async () => {
       expect((await withTraits.build('senior', 'male'))).toEqual({ name: 'John', age: 65 })
     })
+
+    it('ensures trait cannot change the original type of a property', () => {
+      factory.trait('invalidAgeTrait', (f) =>
+        // @ts-expect-error: "Trait should return the same type as the factory"
+        f.attribute('age', () => 'not a number')
+        // @ts-expect-error: "Trait can't add new attributes"
+         .attribute('gender', () => 'female')
+      );
+    });
+
+    it('ensures traits cannot be nested', () => {
+      factory.trait('nestedTrait', (f) => {
+        expect(() => f.trait()).toThrow('Traits cannot be nested');
+        return f;
+      });
+    });
   })
 });

@@ -4,7 +4,7 @@ factory-node is a flexible library for DRY in unit and integration tests. Instea
 
 The library is heavily inspired by Ruby's ecosystem: [factory_bot](https://github.com/thoughtbot/factory_bot), [rspec](https://github.com/rspec/rspec-rails), [faker](https://github.com/faker-ruby/faker).
 
-It implements TypeScript types safety for your factories in the first place. Partly, it explains the choice of DSL.
+It implements TypeScript types safety for your factories in the first place. Partly, it explains the choice of DSL. The factories, attributes and traits are immutable, meaning that you need to always use the returned object. There are no in-place mutations because Typescript does not allow to mutate type for an instance.
 
 ## Installation
 

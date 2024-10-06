@@ -13,7 +13,7 @@ export type AnyFactory = Factory<{ [K in never]: never }>;
 type BuildArgs<TProps extends PropsDefinition> = [...string[]] | [...string[], Partial<ResolvedProps<TProps>>]
 
 export class Factory<TProps extends PropsDefinition> {
-  constructor(private readonly __props: TProps, private readonly __traits: Record<string, PropsDefinition> = {}) {}
+  constructor(protected readonly __props: TProps, protected readonly __traits: Record<string, Partial<TProps>> = {}) {}
 
   attribute<TName extends string, TReturn>(name: TName, value: () => TReturn) {
     return new Factory(
@@ -22,8 +22,9 @@ export class Factory<TProps extends PropsDefinition> {
     ) as unknown as Factory<Merge<TProps & { [K in TName]: () => TReturn }>>
   }
 
-  trait(name: string, traitFn: (factory: AnyFactory) => Factory<PropsDefinition>) {
-    const props = traitFn(new Factory({})).__props;
+  trait(name: string, traitFn: (factory: TraitFactory<TProps>) => TraitFactory<TProps>): Factory<TProps> {
+    const traitFactory = new TraitFactory({}) as TraitFactory<TProps>;
+    const props = traitFn(traitFactory).getProps();
     return new Factory(this.__props, { ...this.__traits, [name]: props });
   }
 
@@ -60,6 +61,22 @@ export class Factory<TProps extends PropsDefinition> {
     const lastArg = traitNames[traitNames.length - 1];
     const overrides = (lastArg && typeof lastArg !== 'string' ? traitNames.pop() : {}) as Partial<ResolvedProps<TProps>>;
     return { traitNames, overrides };
+  }
+}
+
+class TraitFactory<TProps extends PropsDefinition> {
+  constructor(protected readonly __props: Partial<TProps>) {}
+
+  attribute<TName extends keyof TProps>(name: TName, value: TProps[TName]): TraitFactory<TProps> {
+    return new TraitFactory({ ...this.__props, [name]: value }) as TraitFactory<TProps>;
+  }
+
+  trait(): never {
+    throw new Error('Traits cannot be nested');
+  }
+
+  getProps() {
+    return this.__props;
   }
 }
 
