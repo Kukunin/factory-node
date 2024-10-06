@@ -1,1 +1,3 @@
-export { define } from './holding';
+import { newHolding } from './holding';
+
+export const holding = newHolding;

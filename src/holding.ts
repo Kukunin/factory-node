@@ -11,7 +11,7 @@ class Holding<TFactories extends FactoriesDefinition> {
     this.__factories = factories;
   }
 
-  factory<TName extends string, TReturn extends AnyFactory>(
+  define<TName extends string, TReturn extends AnyFactory>(
     name: TName,
     definition: (factory: AnyFactory) => TReturn,
   ) {
@@ -37,4 +37,4 @@ class Holding<TFactories extends FactoriesDefinition> {
   }
 }
 
-export const define = () => new Holding({});
+export const newHolding = () => new Holding({});

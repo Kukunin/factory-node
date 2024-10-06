@@ -1,7 +1,7 @@
-import { define } from '../holding';
+import { newHolding } from '../holding';
 
 describe('Factories holding', () => {
-  const factory = define().factory('user', (f) =>
+  const factory = newHolding().define('user', (f) =>
     f.attribute('name', () => 'abc').attribute('age', () => 18),
   );
 

@@ -4,6 +4,8 @@ factory-node is a flexible library for DRY in unit and integration tests. Instea
 
 The library is heavily inspired by Ruby's ecosystem: [factory_bot](https://github.com/thoughtbot/factory_bot), [rspec](https://github.com/rspec/rspec-rails), [faker](https://github.com/faker-ruby/faker).
 
+It implements TypeScript types safety for your factories in the first place. Partly, it explains the choice of DSL.
+
 ## Installation
 
 Install using yarn:
@@ -24,21 +26,20 @@ npm install --save-dev factory-node
 
 ```ts
 import { faker } from '@faker-js/faker'
-import { factory } from 'factory-node'
+import { holding } from 'factory-node'
 
-factory.define('user', (f) => (
-  f.attribute('id', () => faker.string.uuid())
-   .attribute('username', () => faker.internet.userName())
-   .attribute('email', () => faker.internet.email())
-   .attribute('password', () => faker.internet.password())
-))
-
-factory.define('post, (f) => (
-  f.attribute('id', () => this.build('user').id)
-   .attribute('title', () => faker.lorem.sentence())
-   .attribute('body', () => faker.lorem.paragraphs())
-))
+const factory = holding()
+  .define('user', (f) => (
+    f.attribute('id', () => faker.string.uuid())
+     .attribute('username', () => faker.internet.userName())
+     .attribute('email', () => faker.internet.email())
+     .attribute('password', () => faker.internet.password())
+  ))
+  .define('post', (f) => (
+    f.attribute('userId', () => faker.string.uuid())
+     .attribute('title', () => faker.lorem.sentence())
+     .attribute('body', () => faker.lorem.paragraphs())
+  ))
 
 const post = await factory.build('post')
-console.log(post)
 ```
