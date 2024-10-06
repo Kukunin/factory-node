@@ -43,3 +43,9 @@ const factory = holding()
 
 const post = await factory.build('post')
 ```
+
+## Future plans
+
+- [ ] associations
+- [ ] custom operations (integration with your ORM)
+- [ ] traits
