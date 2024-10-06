@@ -33,4 +33,26 @@ describe('Factory', () => {
       expect(user).toEqual({ name: 'abc', age: 18 });
     });
   })
+
+  describe('traits', () => {
+    const withTraits = factory
+      .trait('senior', (f) => f.attribute('age', () => 65))
+      .trait('male', (f) => f.attribute('name', () => 'John'))
+
+    it('evaluates attributes by default', async () => {
+      expect((await withTraits.build())).toEqual({ name: 'abc', age: 18 })
+    })
+
+    it('allows to pass trait', async () => {
+      expect((await withTraits.build('senior'))).toEqual({ name: 'abc', age: 65 })
+    })
+
+    it('allows mixing traits with overrides', async () => {
+      expect((await withTraits.build('senior', { name: 'Sam' }))).toEqual({ name: 'Sam', age: 65 })
+    })
+
+    it('supports multiple traits', async () => {
+      expect((await withTraits.build('senior', 'male'))).toEqual({ name: 'John', age: 65 })
+    })
+  })
 });
