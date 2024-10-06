@@ -1,23 +1,21 @@
 type PropsDefinition = {
-  [key: string]: () => any;
+  [key: string]: () => unknown;
 };
 
 type ResolvedProps<T extends PropsDefinition> = {
   [K in keyof T]: ReturnType<T[K]>;
 };
 
+type Merge<T> = T extends object ? { [K in keyof T]: T[K] } : never;
+
 export class Factory<TProps extends PropsDefinition> {
-  declare readonly __props: TProps;
+  constructor(private readonly __props: TProps) {}
 
-  constructor(props: TProps) {
-    this.__props = props;
-  }
-
-  attribute<TName extends string, TReturn extends any>(name: TName, value: () => TReturn) {
+  attribute<TName extends string, TReturn>(name: TName, value: () => TReturn) {
     return new Factory({
       ...this.__props,
-      ...({ [name]: value } as { [K in TName]: () => TReturn }),
-    });
+      [name]: value,
+    } as Merge<TProps & { [K in TName]: () => TReturn }>);
   }
 
   async build(overrides: Partial<ResolvedProps<TProps>> = {}): Promise<ResolvedProps<TProps>> {
