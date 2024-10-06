@@ -1,7 +1,7 @@
-import { define as defineFactory, Factory } from './factory';
+import { define as defineFactory, AnyFactory } from './factory';
 
 type FactoriesDefinition = {
-  [key: string]: Factory<any>;
+  [key: string]: AnyFactory;
 };
 
 class Holding<TFactories extends FactoriesDefinition> {
@@ -11,9 +11,9 @@ class Holding<TFactories extends FactoriesDefinition> {
     this.__factories = factories;
   }
 
-  factory<TName extends string, TReturn extends Factory<any>>(
+  factory<TName extends string, TReturn extends AnyFactory>(
     name: TName,
-    definition: (factory: Factory<{}>) => TReturn,
+    definition: (factory: AnyFactory) => TReturn,
   ) {
     const factory = definition(defineFactory());
     return new Holding({

@@ -8,6 +8,8 @@ type ResolvedProps<T extends PropsDefinition> = {
 
 type Merge<T> = T extends object ? { [K in keyof T]: T[K] } : never;
 
+export type AnyFactory = Factory<{ [K in never]: never }>;
+
 export class Factory<TProps extends PropsDefinition> {
   constructor(private readonly __props: TProps) {}
 
