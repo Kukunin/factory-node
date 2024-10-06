@@ -85,3 +85,4 @@ const customSeniorUser = await userFactory.build('senior', { name: 'Alice' })
 - [x] traits
 - [ ] initialize_with function
 - [ ] async attributes
+- [ ] definition files

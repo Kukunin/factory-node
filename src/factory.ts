@@ -8,41 +8,70 @@ type ResolvedProps<T extends PropsDefinition> = {
 
 type Merge<T> = T extends object ? { [K in keyof T]: T[K] } : never;
 
-export type AnyFactory = Factory<{ [K in never]: never }>;
-
 type BuildArgs<TProps extends PropsDefinition> = [...string[]] | [...string[], Partial<ResolvedProps<TProps>>]
 
-export class Factory<TProps extends PropsDefinition> {
-  constructor(protected readonly __props: TProps, protected readonly __traits: Record<string, Partial<TProps>> = {}) {}
+type InitializeWithFn<T extends PropsDefinition> = (props: ResolvedProps<T>) => unknown;
 
-  attribute<TName extends string, TReturn>(name: TName, value: () => TReturn) {
+type UpdateInitializeWith<
+  TOld extends InitializeWithFn<any>,
+  TNew extends PropsDefinition
+> = (props: ResolvedProps<TNew>) => ReturnType<TOld> extends ResolvedProps<any>
+  ? ResolvedProps<TNew>
+  : ReturnType<TOld>;
+
+export class Factory<
+  TProps extends PropsDefinition,
+  TInitializeWith extends InitializeWithFn<TProps> = (props: ResolvedProps<TProps>) => ResolvedProps<TProps>
+> {
+  constructor(
+    protected readonly __props: TProps,
+    protected readonly __traits: Record<string, Partial<TProps>>,
+    private readonly __initializeWith: TInitializeWith
+  ) {}
+
+  attribute<TName extends string, TReturn>(
+    name: TName,
+    value: () => TReturn
+  ) {
+    const newProps = { ...this.__props, [name]: value } as Merge<TProps & { [K in TName]: () => TReturn }>;
     return new Factory(
-      { ...this.__props, [name]: value },
-      this.__traits
-    ) as unknown as Factory<Merge<TProps & { [K in TName]: () => TReturn }>>
+      newProps,
+      this.__traits,
+      this.__initializeWith as any
+    ) as Factory<
+      Merge<TProps & { [K in TName]: () => TReturn }>,
+      UpdateInitializeWith<TInitializeWith, Merge<TProps & { [K in TName]: () => TReturn }>>
+    >;
   }
 
-  trait(name: string, traitFn: (factory: TraitFactory<TProps>) => TraitFactory<TProps>): Factory<TProps> {
+  trait(name: string, traitFn: (factory: TraitFactory<TProps>) => TraitFactory<TProps>): Factory<TProps, TInitializeWith> {
     const traitFactory = new TraitFactory({}) as TraitFactory<TProps>;
     const props = traitFn(traitFactory).getProps();
-    return new Factory(this.__props, { ...this.__traits, [name]: props });
+    return new Factory(this.__props, { ...this.__traits, [name]: props }, this.__initializeWith);
   }
 
-  async build(...args: BuildArgs<TProps>): Promise<ResolvedProps<TProps>> {
+  initializeWith<TNewResult>(
+    initializeWith: (props: ResolvedProps<TProps>) => TNewResult
+  ): Factory<TProps, typeof initializeWith> {
+    return new Factory(this.__props, this.__traits, initializeWith);
+  }
+
+  async build(...args: BuildArgs<TProps>): Promise<ReturnType<TInitializeWith>> {
     return this.buildSync(...args);
   }
 
-  buildSync(...args: BuildArgs<TProps>): ResolvedProps<TProps> {
+  buildSync(...args: BuildArgs<TProps>): ReturnType<TInitializeWith> {
     const { traitNames, overrides } = this.parseArgs(...args);
     const finalProps = this.applyTraits(...traitNames);
 
-    return Object.entries(finalProps).reduce(
+    const result = Object.entries(finalProps).reduce(
       (attributes, [key, value]) => ({
         ...attributes,
         [key]: key in overrides ? overrides[key] : value(),
       }),
       {},
     ) as ResolvedProps<TProps>;
+    return this.__initializeWith(result) as ReturnType<TInitializeWith>;
   }
 
   private applyTraits(...traitNames: string[]): PropsDefinition {
@@ -51,7 +80,6 @@ export class Factory<TProps extends PropsDefinition> {
       if (!trait) {
         throw new Error(`Unknown ${traitName} trait`);
       }
-      console.log('Applying trait', traitName);
       return { ...props, ...trait };
     }, this.__props);
   }
@@ -80,4 +108,11 @@ class TraitFactory<TProps extends PropsDefinition> {
   }
 }
 
-export const define = () => new Factory({});
+export const define = () => new Factory({}, {}, (result) => result);
+
+export type EmptyFactory = ReturnType<typeof define>;
+
+export type FactoryAttributes<F> = F extends Factory<infer TProps, any> ? ResolvedProps<TProps> : never;
+export type FactoryBuildResult<F> = F extends Factory<any, infer TInitializeWith> ? ReturnType<TInitializeWith> : never;
+
+export type AnyFactory = Factory<any, any>;
