@@ -13,9 +13,10 @@ type BuildArgs<TProps extends PropsDefinition> = [...string[]] | [...string[], P
 type InitializeWithFn<T extends PropsDefinition> = (props: ResolvedProps<T>) => unknown;
 
 type UpdateInitializeWith<
-  TOld extends InitializeWithFn<any>,
+  TProps extends PropsDefinition,
+  TOld extends InitializeWithFn<TProps>,
   TNew extends PropsDefinition
-> = (props: ResolvedProps<TNew>) => ReturnType<TOld> extends ResolvedProps<any>
+> = (props: ResolvedProps<TNew>) => ReturnType<TOld> extends ResolvedProps<PropsDefinition>
   ? ResolvedProps<TNew>
   : ReturnType<TOld>;
 
@@ -37,10 +38,11 @@ export class Factory<
     return new Factory(
       newProps,
       this.__traits,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       this.__initializeWith as any
     ) as Factory<
       Merge<TProps & { [K in TName]: () => TReturn }>,
-      UpdateInitializeWith<TInitializeWith, Merge<TProps & { [K in TName]: () => TReturn }>>
+      UpdateInitializeWith<TProps, TInitializeWith, Merge<TProps & { [K in TName]: () => TReturn }>>
     >;
   }
 
@@ -112,7 +114,10 @@ export const define = () => new Factory({}, {}, (result) => result);
 
 export type EmptyFactory = ReturnType<typeof define>;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type FactoryAttributes<F> = F extends Factory<infer TProps, any> ? ResolvedProps<TProps> : never;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type FactoryBuildResult<F> = F extends Factory<any, infer TInitializeWith> ? ReturnType<TInitializeWith> : never;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type AnyFactory = Factory<any, any>;
