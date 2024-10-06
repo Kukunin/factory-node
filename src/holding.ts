@@ -2,7 +2,8 @@ import {
   define as defineFactory,
   FactoryAttributes,
   FactoryBuildResult,
-  AnyFactory
+  AnyFactory,
+  EmptyFactory
 } from './factory';
 
 type FactoriesDefinition = {
@@ -18,7 +19,7 @@ class Holding<TFactories extends FactoriesDefinition> {
 
   define<TName extends string, TFactory extends AnyFactory>(
     name: TName,
-    definition: (factory: AnyFactory) => TFactory,
+    definition: (factory: EmptyFactory) => TFactory,
   ) {
     const factory = definition(defineFactory());
     return new Holding({

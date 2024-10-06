@@ -24,7 +24,7 @@ npm install --save-dev factory-node
 
 ### Generic example
 
-```ts
+```typescript
 import { faker } from '@faker-js/faker'
 import { holding } from 'factory-node'
 
@@ -54,7 +54,7 @@ Traits allow you to create variations of your factory without duplicating code. 
 
 You can define traits using the `trait` method on your factory. Each trait is a function that modifies the factory's attributes.
 
-```ts
+```typescript
 const userFactory = define()
   .attribute('name', () => 'Default Name')
   .attribute('age', () => 30)
@@ -64,7 +64,7 @@ const userFactory = define()
 
 Once defined, you can use traits when building objects:
 
-```ts
+```typescript
 // Using a single trait
 const seniorUser = await userFactory.build('senior')
 // Result: { name: 'Default Name', age: 65 }
@@ -78,11 +78,49 @@ const customSeniorUser = await userFactory.build('senior', { name: 'Alice' })
 // Result: { name: 'Alice', age: 65 }
 ```
 
+### InitializeWith
+
+The `initializeWith` method allows you to customize the final output of your factory. This is particularly useful when you want to return instances of specific classes instead of plain JavaScript objects.
+
+Here's an example of how to use `initializeWith` with a sample User model:
+
+```typescript
+import { holding } from 'factory-node'
+
+class User {
+  private name: string;
+  private age: number;
+
+  constructor(props: { name: string; age: number }) {
+    this.name = props.name;
+    this.age = props.age;
+  }
+
+  greet() {
+    return `Hello, I'm ${this.name} and I'm ${this.age} years old.`;
+  }
+}
+
+const factory = holding().define('user', (f) =>
+  f.attribute('name', () => 'John Doe')
+   .attribute('age', () => 30)
+   .initializeWith((attrs) => new User(attrs))
+);
+
+const user = await holding.build('user');
+console.log(user instanceof User); // true
+console.log(user.greet()); // "Hello, I'm John Doe and I'm 30 years old."
+
+// You can still override attributes
+const youngUser = await holding.build('user', { age: 18 });
+console.log(youngUser.greet()); // "Hello, I'm John Doe and I'm 18 years old."
+```
+
 ## Future plans
 
+- [x] traits
+- [x] initialize_with function
 - [ ] associations
 - [ ] custom operations (integration with your ORM)
-- [x] traits
-- [ ] initialize_with function
 - [ ] async attributes
 - [ ] definition files
