@@ -1,8 +1,8 @@
 {
-  "name": "factory-node-esm-example",
+  "name": "factory-node-cjs-ts-example",
   "version": "1.0.0",
   "private": true,
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "test": "jest"
   },
