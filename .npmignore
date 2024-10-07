@@ -1,0 +1,5 @@
+src
+examples
+jest.config.js
+tsconfig*.json
+.gitignore

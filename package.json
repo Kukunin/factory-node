@@ -2,16 +2,26 @@
   "name": "factory-node",
   "version": "0.0.1",
   "description": "FactoryBot-like factories to JavaScript/TypeScript",
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
+  "main": "lib/cjs/index.js",
+  "module": "lib/esm/index.js",
+  "types": "lib/types/index.d.ts",
+  "files": [
+    "lib/**/*"
+  ],
   "scripts": {
-    "build": "tsc",
+    "build": "rimraf lib && npm run build:cjs && npm run build:esm && npm run build:types",
+    "build:cjs": "tsc -p tsconfig.cjs.json",
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "build:types": "tsc -p tsconfig.types.json",
     "format": "prettier --write \"src/**/*.(js|ts)\"",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
     "test": "jest --config jest.config.js",
+    "test:cjs": "cd examples/cjs && npm install && npm test",
+    "test:esm": "cd examples/esm && npm install && npm test",
+    "test:examples": "npm run test:cjs && npm run test:esm",
     "prepare": "npm run build",
-    "prepublishOnly": "npm test && npm run lint",
+    "prepublishOnly": "npm test && npm run lint && npm run test:examples",
     "preversion": "npm run lint",
     "version": "npm run format && git add -A src",
     "postversion": "git push && git push --tags"
@@ -45,10 +55,8 @@
     "eslint-plugin-jest": "28.8.3",
     "jest": "29.7.0",
     "prettier": "3.3.3",
+    "rimraf": "^6.0.1",
     "ts-jest": "29.2.5",
     "typescript": "5.6.2"
-  },
-  "files": [
-    "lib/**/*"
-  ]
+  }
 }

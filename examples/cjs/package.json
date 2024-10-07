@@ -1,0 +1,18 @@
+{
+  "name": "factory-node-cjs-example",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "test": "jest"
+  },
+  "dependencies": {
+    "factory-node": "file:../.."
+  },
+  "devDependencies": {
+    "jest": "^29.5.0",
+    "@types/jest": "^29.5.1",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.0.4"
+  }
+}
