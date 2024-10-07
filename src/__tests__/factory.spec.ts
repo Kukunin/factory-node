@@ -54,5 +54,44 @@ describe('Factory', () => {
     it('supports multiple traits', async () => {
       expect((await withTraits.build('senior', 'male'))).toEqual({ name: 'John', age: 65 })
     })
+
+    it('ensures trait cannot change the original type of a property', async () => {
+      const myFactory = factory.trait('invalidAgeTrait', (f) =>
+        // @ts-expect-error: "Trait should return the same type as the factory"
+        f.attribute('age', () => 'not a number')
+        // @ts-expect-error: "Trait can't add new attributes"
+         .attribute('gender', () => 'female')
+      );
+      const user = await myFactory.build();
+      expect('gender' in user).toBeFalsy();
+    });
+
+    it('ensures traits cannot be nested', () => {
+      factory.trait('nestedTrait', (f) => {
+        expect(() => f.trait()).toThrow('Traits cannot be nested');
+        return f;
+      });
+    });
+  })
+
+  describe('initializeWith', () => {
+    it('allows to define initializeWith function', async () => {
+      const ageFactory = factory.initializeWith((result) => result.age);
+      const age: number = await ageFactory.build()
+      expect(age).toEqual(18)
+    })
+
+    it('respects the return type of initializeWith', async () => {
+      const ageFactory = factory.initializeWith((result) => result.age);
+      // @ts-expect-error: "initializeWith should return integer in this case"
+      const age: string = await ageFactory.build()
+      expect(age).toEqual(18)
+    })
+
+    it('allows to define attributes after initializeWith', async () => {
+      const myFactory = factory.initializeWith((result) => result).attribute('gender', () => 'female');
+      const user = await myFactory.build()
+      expect(user.gender).toEqual('female')
+    })
   })
 });

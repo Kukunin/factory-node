@@ -9,13 +9,13 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.x]
+        node-version: [20.x]
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
       with:
-        fetch-depth: 2 
+        fetch-depth: 2
 
     - name: Set up Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
@@ -25,6 +25,8 @@ jobs:
     - name: Install dependencies
       run: npm install
 
+    - name: Run the lint
+      run: npm run lint
     - name: Run the tests
       run: npm test -- --coverage
     - name: Upload coverage to Codecov

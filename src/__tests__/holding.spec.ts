@@ -22,4 +22,15 @@ describe('Factories holding', () => {
       expect(user).toEqual({ name: 'abc', age: 18 });
     });
   })
+
+  describe('initializeWith', () => {
+    const factory = newHolding().define('user', (f) =>
+      f.attribute('age', () => 18).initializeWith((result) => result.age),
+    );
+
+    it('allows to define initializeWith function', async () => {
+      const age: number = await factory.build('user');
+      expect(age).toEqual(18);
+    })
+  })
 });
