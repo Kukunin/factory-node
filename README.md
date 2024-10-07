@@ -55,26 +55,29 @@ Traits allow you to create variations of your factory without duplicating code. 
 You can define traits using the `trait` method on your factory. Each trait is a function that modifies the factory's attributes.
 
 ```typescript
-const userFactory = define()
-  .attribute('name', () => 'Default Name')
-  .attribute('age', () => 30)
-  .trait('senior', (f) => f.attribute('age', () => 65))
-  .trait('male', (f) => f.attribute('name', () => 'John'))
+import { holding } from 'factory-node'
+
+const factory = holding().define('user', (f) => (
+  f.attribute('name', () => 'Default Name')
+   .attribute('age', () => 30)
+   .trait('senior', (f) => f.attribute('age', () => 65))
+   .trait('male', (f) => f.attribute('name', () => 'John'))
+))
 ```
 
 Once defined, you can use traits when building objects:
 
 ```typescript
 // Using a single trait
-const seniorUser = await userFactory.build('senior')
+const seniorUser = await userFactory.build('user', 'senior')
 // Result: { name: 'Default Name', age: 65 }
 
 // Using multiple traits
-const seniorMaleUser = await userFactory.build('senior', 'male')
+const seniorMaleUser = await userFactory.build('user', 'senior', 'male')
 // Result: { name: 'John', age: 65 }
 
 // Combining traits with overrides
-const customSeniorUser = await userFactory.build('senior', { name: 'Alice' })
+const customSeniorUser = await userFactory.build('user', 'senior', { name: 'Alice' })
 // Result: { name: 'Alice', age: 65 }
 ```
 

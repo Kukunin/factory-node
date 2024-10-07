@@ -1,7 +1,5 @@
 import {
   define as defineFactory,
-  FactoryAttributes,
-  FactoryBuildResult,
   AnyFactory,
   EmptyFactory
 } from './factory';
@@ -30,16 +28,16 @@ class Holding<TFactories extends FactoriesDefinition> {
 
   build<TName extends keyof TFactories>(
     name: TName,
-    overrides: Partial<FactoryAttributes<TFactories[TName]>> = {},
-  ): Promise<FactoryBuildResult<TFactories[TName]>> {
-    return this.__factories[name].build(overrides);
+    ...args: Parameters<TFactories[TName]['build']>
+  ): ReturnType<TFactories[TName]['build']> {
+    return this.__factories[name].build(...args) as ReturnType<TFactories[TName]['build']>;
   }
 
   buildSync<TName extends keyof TFactories>(
     name: TName,
-    overrides: Partial<FactoryAttributes<TFactories[TName]>> = {},
-  ): FactoryBuildResult<TFactories[TName]> {
-    return this.__factories[name].buildSync(overrides);
+    ...args: Parameters<TFactories[TName]['buildSync']>
+  ): ReturnType<TFactories[TName]['buildSync']> {
+    return this.__factories[name].buildSync(...args);
   }
 }
 

@@ -115,9 +115,4 @@ export const define = () => new Factory({}, {}, (result) => result);
 export type EmptyFactory = ReturnType<typeof define>;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type FactoryAttributes<F> = F extends Factory<infer TProps, any> ? ResolvedProps<TProps> : never;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type FactoryBuildResult<F> = F extends Factory<any, infer TInitializeWith> ? ReturnType<TInitializeWith> : never;
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type AnyFactory = Factory<any, any>;
