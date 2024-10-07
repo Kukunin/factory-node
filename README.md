@@ -81,7 +81,7 @@ const customSeniorUser = await userFactory.build('user', 'senior', { name: 'Alic
 // Result: { name: 'Alice', age: 65 }
 ```
 
-### InitializeWith
+### initializeWith
 
 The `initializeWith` method allows you to customize the final output of your factory. This is particularly useful when you want to return instances of specific classes instead of plain JavaScript objects.
 
